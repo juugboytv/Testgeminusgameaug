@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Geminus - Aetherial Shard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://css.gg/css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-black text-gray-200">
+
+    <canvas id="smoke-canvas"></canvas>
+
+    <div id="game-container" class="h-full">
+        <div id="game-hud-screen" class="relative z-10 h-full">
+            <div id="layout-container" class="max-w-md mx-auto h-full flex flex-col p-2 gap-2">
+
+                <div id="hud-container" class="tappable-section" data-order="1">
+                    <header id="hud-section" class="relative glass-panel p-3 rounded-lg flex justify-between items-center flex-shrink-0 gap-2">
+                        <section id="player-status-panel" class="flex-1">
+                            <div id="player-status-container" class="flex flex-col space-y-1">
+                                <p class="font-orbitron text-base name-value text-glow-label" id="player-name-level-value">Player Lvl: 1</p>
+                                <p class="text-xs"><span class="info-label text-glow-label">Race:</span><span class="info-value text-glow-subtle" id="player-race-value"></span></p>
+                                <p class="text-xs"><span class="info-label text-glow-label">A-Spec:</span><span class="info-value text-glow-subtle" id="player-aspec-value"></span></p>
+                                <p class="text-xs"><span class="info-label text-glow-label">Zone:</span><span class="info-value text-glow-subtle" id="zone-name-value"></span></p>
+                                <p class="text-xs text-glow-label" id="player-coords-value">(0,0)</p>
+                            </div>
+                        </section>
+                        <section id="mini-map-panel" class="mr-12">
+                            <div id="mini-map-container">
+                                <div class="absolute -inset-1 rounded-full border border-dashed border-orange-500/30 animate-spin" style="animation-duration: 20s; animation-timing-function: linear;"></div>
+                                <div class="relative w-full h-full rounded-full overflow-hidden glass-panel border-2 border-[var(--border-color-main)]">
+                                    <canvas id="mini-map-canvas"></canvas>
+                                </div>
+                            </div>
+                        </section>
+                        <button id="toggle-controls-btn" class="glass-button w-11 h-11 rounded-full text-2xl !p-0">🎮</button>
+                    </header>
+                </div>
+
+                <div id="main-content-container" class="tappable-section flex-grow flex flex-col overflow-hidden" data-order="2">
+                    <section id="main-content-panel" class="flex-grow flex flex-col overflow-hidden">
+                        <main id="main-content" class="flex-grow flex flex-col overflow-hidden glass-panel rounded-lg relative">
+                            <button id="focus-mode-btn" class="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-red-600 border border-white/30 flex items-center justify-center cursor-pointer transition-colors hover:bg-red-500 z-50" title="Toggle Focus Mode">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 0h-4m4 0l-5-5"></path></svg>
+                            </button>
+                            <button id="layout-edit-btn" class="absolute bottom-2 left-2 w-8 h-8 rounded-full bg-blue-600 border border-white/30 flex items-center justify-center cursor-pointer transition-colors hover:bg-blue-500 z-50" title="Toggle Layout Edit Mode">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                            </button>
+                            <div id="main-tabs-container" class="flex-shrink-0 flex items-center overflow-x-auto whitespace-nowrap custom-scrollbar-x border-b" style="border-color: var(--border-color-main);">
+                                <button class="main-tab-button active tappable-tab" data-tab="equipment" data-tab-order="1">Equipment</button>
+                                <button class="main-tab-button tappable-tab" data-tab="infusion" data-tab-order="2">Infusion</button>
+                                <button class="main-tab-button tappable-tab" data-tab="inventory" data-tab-order="3">Inventory</button>
+                                <button class="main-tab-button tappable-tab" data-tab="stats" data-tab-order="4">Stats</button>
+                                <button class="main-tab-button tappable-tab" data-tab="combat" data-tab-order="5">Combat</button>
+                                <button class="main-tab-button tappable-tab" data-tab="settings" data-tab-order="6">Settings</button>
+                            </div>
+                            <div id="main-tab-content" class="flex-grow p-2 md:p-4 overflow-y-auto custom-scrollbar relative">
+                                <div id="tab-content-equipment" class="main-tab-panel active"></div>
+                                <div id="tab-content-infusion" class="main-tab-panel"></div>
+                                <div id="tab-content-inventory" class="main-tab-panel"></div>
+                                <div id="tab-content-stats" class="main-tab-panel"></div>
+                                <div id="tab-content-combat" class="main-tab-panel"></div>
+                                <div id="tab-content-settings" class="main-tab-panel"></div>
+                            </div>
+                        </main>
+                    </section>
+                </div>
+
+                <div id="footer-container" class="tappable-section" data-order="3">
+                    <footer id="footer-section" class="flex-shrink-0 flex items-stretch gap-2 controls-hidden">
+                        <section id="communication-panel" class="flex-grow">
+                            <div id="footer-chat-container" class="h-full glass-panel w-full p-2 rounded-lg flex flex-col">
+                                <div class="flex-shrink-0 flex flex-wrap gap-1 mb-2">
+                                    <button data-channel="main" class="footer-tab-button glass-button text-xs px-3 py-1 rounded-md flex-grow active">Main</button>
+                                    <button data-channel="sales" class="footer-tab-button glass-button text-xs px-3 py-1 rounded-md flex-grow">Sales</button>
+                                    <button data-channel="clan" class="footer-tab-button glass-button text-xs px-3 py-1 rounded-md flex-grow">Clan</button>
+                                    <button id="open-chat-modal-btn" class="glass-button text-xs px-2 py-1 rounded-md" title="Open Full Chat">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 0h-4m4 0l-5-5"></path></svg>
+                                    </button>
+                                </div>
+                                <div id="footer-chat-content-wrapper" class="text-xs space-y-1 overflow-y-auto custom-scrollbar" style="height: 70px;"></div>
+                                <form id="footer-message-form" class="flex-shrink-0 flex gap-2 mt-2">
+                                    <input type="text" id="footer-message-input" class="footer-chat-input flex-grow w-full px-2 py-1 text-xs rounded-md" placeholder="Type a message..." autocomplete="off">
+                                    <button type="submit" id="footer-send-button" class="glass-button text-xs px-3 py-1 rounded-md">Send</button>
+                                </form>
+                            </div>
+                        </section>
+                        <section id="controls-panel" class="h-full glass-panel p-2 rounded-lg">
+                            <div class="flex flex-col items-center justify-center h-full">
+                                <div id="d-pad-controls">
+                                    <div class="game-key move-key" id="key-up" data-key="up"><svg viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path></svg></div>
+                                    <div class="game-key move-key" id="key-left" data-key="left"><svg viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"></path></svg></div>
+                                    <div class="game-key move-key" id="key-down" data-key="down"><svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"></path></svg></div>
+                                    <div class="game-key move-key" id="key-right" data-key="right"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"></path></svg></div>
+                                </div>
+                                <div class="game-key" id="key-interact" data-key="interact">Interact</div>
+                            </div>
+                        </section>
+                    </footer>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-container"></div>
+    <div id="toast-notification"></div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
